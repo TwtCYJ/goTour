@@ -2,8 +2,12 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"io"
 	"math"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -36,6 +40,13 @@ type Person struct {
 type MyError struct {
 	When time.Time
 	What string
+}
+
+type HelloWeb struct {
+}
+
+func (hw HelloWeb) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hello!")
 }
 
 func (e *MyError) Error() string {
@@ -99,4 +110,25 @@ func main() {
 	if err := run(); err != nil {
 		fmt.Println(err)
 	}
+
+	r := strings.NewReader("hello, reader!")
+	b := make([]byte, 8)
+	for {
+		n, err := r.Read(b)
+		fmt.Printf("n = %v err = %v b = %v\n", n, err, b)
+		fmt.Printf("b[:n] = %q\n", b[:n])
+		if err == io.EOF {
+			break
+		}
+	}
+
+	//var hw HelloWeb
+	//err := http.ListenAndServe("localhost:4000", hw)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+
+	m := image.NewRGBA(image.Rect(0, 0, 100, 100))
+	fmt.Println(m.Bounds())
+	fmt.Println(m.At(0, 0).RGBA())
 }
